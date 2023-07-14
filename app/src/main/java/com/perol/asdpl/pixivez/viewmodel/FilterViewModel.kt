@@ -48,7 +48,7 @@ enum class ADAPTER_VERSION {
 class PicListFilter(
     var R18on: Boolean = false,
     var blockTags: List<String>? = null,
-    var blockUser: List<Long>? = null,
+    private var blockUser: List<Long>? = null,
     var max_sanity: Int = 8,
 
     var minLike: Int = 0,
@@ -60,9 +60,9 @@ class PicListFilter(
     var showDownloaded: Boolean = true,
     var showNotDownloaded: Boolean = true,
 
-    var showIllust: Boolean = true,
-    var showManga: Boolean = true,
-    var showUgoira: Boolean = true,
+    private var showIllust: Boolean = true,
+    private var showManga: Boolean = true,
+    private var showUgoira: Boolean = true,
 
     var showFollowed: Boolean = true,
     var showNotFollowed: Boolean = true,

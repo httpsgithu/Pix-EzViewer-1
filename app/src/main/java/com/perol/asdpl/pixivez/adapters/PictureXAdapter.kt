@@ -55,8 +55,8 @@ import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
-import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
 import com.afollestad.materialdialogs.list.listItems
+import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
@@ -72,17 +72,18 @@ import com.perol.asdpl.pixivez.activity.UserMActivity
 import com.perol.asdpl.pixivez.activity.ZoomActivity
 import com.perol.asdpl.pixivez.databinding.ViewPicturexDetailBinding
 import com.perol.asdpl.pixivez.databinding.ViewPicturexSurfaceGifBinding
+import com.perol.asdpl.pixivez.databindingadapter.loadUserImage
 import com.perol.asdpl.pixivez.objects.*
+import com.perol.asdpl.pixivez.objects.InteractionUtil.add
 import com.perol.asdpl.pixivez.responses.Illust
 import com.perol.asdpl.pixivez.responses.Tag
-import com.perol.asdpl.pixivez.services.GlideApp
 import com.perol.asdpl.pixivez.services.PxEZApp
 import com.perol.asdpl.pixivez.services.Works
 import com.perol.asdpl.pixivez.sql.entity.BlockTagEntity
+import com.perol.asdpl.pixivez.ui.NiceImageView
 import com.perol.asdpl.pixivez.viewmodel.BlockViewModel
 import com.perol.asdpl.pixivez.viewmodel.PictureXViewModel
 import com.perol.asdpl.pixivez.viewmodel.ProgressInfo
-import com.shehuan.niv.NiceImageView
 import com.waynejo.androidndkgif.GifEncoder
 import com.zhy.view.flowlayout.FlowLayout
 import com.zhy.view.flowlayout.TagAdapter
@@ -188,12 +189,12 @@ class PictureXAdapter(
 
     class PictureViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
-    class GifViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    //class GifViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
     class SurfaceGifViewHolder(override val containerView: View) :
         RecyclerView.ViewHolder(containerView), LayoutContainer
 
-    class FisrtDetailViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    //class FisrtDetailViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
     class DetailViewHolder(
         var binding: ViewPicturexDetailBinding
@@ -209,6 +210,7 @@ class PictureXAdapter(
         private val bookmarkedUserNum =
             itemView.findViewById<TextView>(R.id.bookmarked_user_num)
 
+        @SuppressLint("SetTextI18n")
         fun updateWithPage(
             mContext: Context,
             illust: Illust,
@@ -216,7 +218,19 @@ class PictureXAdapter(
             mBookmarkedUserListen: () -> Unit,
             mUserPicLongClick: () -> Unit
         ) {
-            binding.illust = illust
+            //binding.illust = illust
+            binding.apply {
+                loadUserImage(imageViewUserPicX, illust.user.profile_image_urls.medium)
+
+                textViewTitle.text = illust.title
+                textViewUserName.text = illust.user.name
+                textViewIllustCreateDate.text = illust.create_date
+
+                textviewIllustId.text = illust.id.toString()
+                pixelWxH.text = "${illust.width}X${illust.height}"
+                textViewTotalView.text = illust.total_view.toString()
+                bookmarkedUserNum.text = illust.total_bookmarks.toString()
+            }
             // captionTextView.autoLinkMask = Linkify.WEB_URLS
             val colorPrimary = ThemeUtil.getColorPrimary(mContext)
             val colorPrimaryDark = ThemeUtil.getColorPrimaryDark(mContext)
@@ -240,12 +254,7 @@ class PictureXAdapter(
                 } else null
                 UserMActivity.start(mContext, illust.user, options)
             }
-            if (illust.caption.isNotBlank()) {
-                binding.html = Html.fromHtml(illust.caption)
-            } 
-            else {
-                binding.html = Html.fromHtml("~")
-            }
+            binding.textviewCaption.text = Html.fromHtml(illust.caption.ifBlank { "~" })
             Linkify.addLinks(captionTextView, Linkify.WEB_URLS)
             Log.d("url", captionTextView.urls.toString())
             captionTextView.movementMethod = LinkMovementMethod.getInstance()
@@ -343,7 +352,6 @@ class PictureXAdapter(
                                         EventBus.getDefault().post(AdapterRefreshEvent())
                                     }
                                 }
-                                lifecycleOwner(binding.lifecycleOwner)
                             }
                             true
                         }
@@ -361,7 +369,6 @@ class PictureXAdapter(
                                         EventBus.getDefault().post(AdapterRefreshEvent())
                                     }
                                 }
-                                lifecycleOwner(binding.lifecycleOwner)
                             }
                             true
                         }
@@ -491,9 +498,10 @@ class PictureXAdapter(
                     mainImage.maxHeight = ScreenUtil.screenHeightPx()
                     mainImage.scaleType = ImageView.ScaleType.CENTER_INSIDE
                 }
-                GlideApp.with(mContext).load(imageUrls[position])
+                Glide.with(mContext).load(imageUrls[position])
                     .placeholder(if (position % 2 == 1) R.color.transparent else R.color.halftrans)
-                    .thumbnail(GlideApp.with(mContext)
+                    .thumbnail(
+                        Glide.with(mContext)
                     .load(if (position == 0) imageThumbnailUrls[0] else ColorDrawable(ThemeUtil.halftrans)))
                     .transition(withCrossFade()).listener(object : RequestListener<Drawable> {
 
@@ -537,7 +545,7 @@ class PictureXAdapter(
                         val detailstring = InteractionUtil.toDetailString(data)
                         builder.setMessage(detailstring)
                         builder.setPositiveButton(mContext.resources.getString(R.string.confirm)) { dialog, which ->
-                            TToast.startDownload()
+                            Toasty.shortToast(R.string.join_download_queue)
                             Works.imgD(data, position)
                         }
                         builder.setNegativeButton(mContext.resources.getString(android.R.string.cancel)) { dialog, which ->
@@ -577,7 +585,7 @@ class PictureXAdapter(
                                     }
                                 // Set the action buttons
                                 builder.setPositiveButton(android.R.string.ok) { dialog, id ->
-                                    TToast.startDownload()
+                                    Toasty.shortToast(R.string.join_download_queue)
                                     mSelectedItems.map {
                                         Works.imgD(data, it)
                                     }
@@ -643,7 +651,7 @@ class PictureXAdapter(
                         height = finalHeight.toInt()
                     }
                 }
-                GlideApp.with(mContext).load(imageUrls[position]).placeholder(if (position % 2 == 1) R.color.transparent else R.color.halftrans)
+                Glide.with(mContext).load(imageUrls[position]).placeholder(if (position % 2 == 1) R.color.transparent else R.color.halftrans)
                     .transition(withCrossFade()).listener(object : RequestListener<Drawable> {
                         override fun onLoadFailed(
                             e: GlideException?,
@@ -728,7 +736,7 @@ class PictureXAdapter(
                                                         Toast.LENGTH_SHORT
                                                     ).show()
                                                 }, {
-                                                })
+                                                }).add()
                                             }
                                             else {
                                                 runBlocking {
@@ -797,7 +805,7 @@ class PictureXAdapter(
                     }, {
                         Log.d("throw", "throw it")
                         play.visibility = View.VISIBLE
-                    }, {})
+                    }, {}).add()
                 }
             }
             is DetailViewHolder ->

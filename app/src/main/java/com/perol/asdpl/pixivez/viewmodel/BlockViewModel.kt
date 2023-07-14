@@ -11,7 +11,7 @@ import java.util.*
 
 object BlockViewModel{
     private val appDatabase = AppDatabase.getInstance(PxEZApp.instance)
-    var allTags:MutableLiveData<LinkedList<BlockTagEntity>>? = null
+    private var allTags:MutableLiveData<LinkedList<BlockTagEntity>>? = null
     private var allTagString:LinkedList<String>? = null
     /*private val initTask: Job
     init {

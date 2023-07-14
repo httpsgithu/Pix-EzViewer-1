@@ -34,13 +34,13 @@ import com.afollestad.materialdialogs.bottomsheets.BottomSheet
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.files.folderChooser
 import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
+import com.bumptech.glide.Glide
 import com.perol.asdpl.pixivez.R
 import com.perol.asdpl.pixivez.activity.PictureActivity
 import com.perol.asdpl.pixivez.activity.RinkActivity
 import com.perol.asdpl.pixivez.databinding.ActivityImgManagerBinding
 import com.perol.asdpl.pixivez.databinding.CustomformatviewBinding
 import com.perol.asdpl.pixivez.objects.FileUtil
-import com.perol.asdpl.pixivez.services.GlideApp
 import com.perol.asdpl.pixivez.services.PxEZApp
 import java.io.File
 import kotlin.math.max
@@ -76,20 +76,18 @@ class ImgManagerActivity : RinkActivity() {
         viewModel.path.value = viewModel.pre.getString("ImgManagerPath", PxEZApp.storepath)!!
         viewModel.path.observe(this) {
             binding.swiperefreshLayout.isRefreshing = true
-            Thread(
-                Runnable {
-                    viewModel.files = FileUtil.getGroupList(
-                        it
-                    )
-                    // .filter{it.isPic()}.toMutableList()
-                    viewModel.task = viewModel.files!!.map { RenameTask(it) }
-                    runOnUiThread {
-                        binding.imgCount.text = viewModel.files!!.size.toString()
-                        binding.swiperefreshLayout.isRefreshing = false
-                        imgManagerAdapter.setNewInstance(viewModel.files)
-                    }
+            Thread {
+                viewModel.files = FileUtil.getGroupList(
+                    it
+                )
+                // .filter{it.isPic()}.toMutableList()
+                viewModel.task = viewModel.files!!.map { RenameTask(it) }
+                runOnUiThread {
+                    binding.imgCount.text = viewModel.files!!.size.toString()
+                    binding.swiperefreshLayout.isRefreshing = false
+                    imgManagerAdapter.setNewInstance(viewModel.files)
                 }
-            ).start()
+            }.start()
         }
         binding.swiperefreshLayout.setOnRefreshListener {
             Thread {
@@ -121,7 +119,7 @@ class ImgManagerActivity : RinkActivity() {
 
     private fun reset() {
         getInfo = false
-        GlideApp.with(this).load(R.drawable.ic_action_search).thumbnail(0.5f).into(binding.fabStart)
+        Glide.with(this).load(R.drawable.ic_action_search).thumbnail(0.5f).into(binding.fabStart)
         viewModel.task?.forEach {
             it.file.checked = false
         }
@@ -138,11 +136,11 @@ class ImgManagerActivity : RinkActivity() {
             }
             else {
                 if (getInfo) {
-                    GlideApp.with(this).load(R.drawable.ic_action_search).into(binding.fabStart)
+                    Glide.with(this).load(R.drawable.ic_action_search).into(binding.fabStart)
                     viewModel.renameAll()
                 }
                 else {
-                    GlideApp.with(this).load(R.drawable.ic_action_play).into(binding.fabStart)
+                    Glide.with(this).load(R.drawable.ic_action_play).into(binding.fabStart)
                     viewModel.getInfo()
                 }
                 getInfo = !getInfo

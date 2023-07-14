@@ -40,19 +40,20 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.perol.asdpl.pixivez.R
 import com.perol.asdpl.pixivez.activity.BlockActivity
 import com.perol.asdpl.pixivez.activity.UserFollowActivity
 import com.perol.asdpl.pixivez.activity.UserMActivity
 import com.perol.asdpl.pixivez.adapters.PictureXAdapter
 import com.perol.asdpl.pixivez.databinding.FragmentPictureXBinding
+import com.perol.asdpl.pixivez.databindingadapter.loadUserImage
 import com.perol.asdpl.pixivez.dialog.CommentDialog
 import com.perol.asdpl.pixivez.dialog.TagsBookMarkDialog
 import com.perol.asdpl.pixivez.objects.AdapterRefreshEvent
 import com.perol.asdpl.pixivez.objects.ThemeUtil
 import com.perol.asdpl.pixivez.objects.Toasty
 import com.perol.asdpl.pixivez.responses.Illust
-import com.perol.asdpl.pixivez.services.GlideApp
 import com.perol.asdpl.pixivez.services.PxEZApp
 import com.perol.asdpl.pixivez.viewmodel.BlockViewModel
 import com.perol.asdpl.pixivez.viewmodel.PictureXViewModel
@@ -117,8 +118,8 @@ class PictureXFragment : BaseFragment() {
             pictureXViewModel.illustDetail.value?.tags?.forEach {
                 if (blockTags.contains(it.name)) needBlock = true
             }
-            if (!needBlock) {
-                binding.blockView.visibility = View.GONE
+            if (needBlock) {
+                binding.blockView.visibility = View.VISIBLE
             }
         }
     }
@@ -140,7 +141,13 @@ class PictureXFragment : BaseFragment() {
                         break
                     }
                 }
-                binding.illust = it
+                //binding.illust = it
+                binding.apply {
+                    loadUserImage(imageViewUserPicX, it.user.profile_image_urls.medium)
+                    textViewTitle.text = it.title
+                    textViewUserName.text = it.user.name
+                    textViewIllustCreateDate.text = it.create_date
+                }
 
                 position = if (it.meta_pages.isNotEmpty()) it.meta_pages.size else 1
                 pictureXAdapter =
@@ -207,10 +214,10 @@ class PictureXFragment : BaseFragment() {
         pictureXViewModel.likeIllust.observe(viewLifecycleOwner) {
             if (it != null) {
                 if (it) {
-                    GlideApp.with(this).load(R.drawable.heart_red).into(binding.fab)
+                    Glide.with(this).load(R.drawable.heart_red).into(binding.fab)
                 }
                 else {
-                    GlideApp.with(this).load(R.drawable.ic_action_heart).into(binding.fab)
+                    Glide.with(this).load(R.drawable.ic_action_heart).into(binding.fab)
                 }
             }
         }
@@ -299,9 +306,7 @@ class PictureXFragment : BaseFragment() {
     ): View {
         // Inflate the layout for this fragment
         if (!this::binding.isInitialized) {
-            binding = FragmentPictureXBinding.inflate(inflater, container, false).apply {
-                lifecycleOwner = this@PictureXFragment
-            }
+            binding = FragmentPictureXBinding.inflate(inflater, container, false)
         }
         position = illustobj?.meta_pages?.size ?: 1
         return binding.root

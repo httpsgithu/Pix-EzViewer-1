@@ -332,4 +332,9 @@
     <string name="layout_config">布局设置</string>
     <string name="span_num">列数(默认 竖屏2 横屏4)</string>
     <string name="crash_title">这是崩溃报告，如果遇到个别功能闪退，请将此报告反馈给开发者</string>
+    <string name="title_activity_item_detail_host">ItemDetailHostActivity</string>
+    <string name="title_item_list">Items</string>
+    <string name="title_item_detail">Item Detail</string>
+    <string name="background">background</string>
+    <string name="avatar">user avatar</string>
 </resources>

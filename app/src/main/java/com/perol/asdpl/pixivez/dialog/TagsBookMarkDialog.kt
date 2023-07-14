@@ -42,7 +42,7 @@ class TagsBookMarkDialog : DialogFragment() {
     companion object;
 
     lateinit var recyclerView: RecyclerView
-    lateinit var editText: EditText
+    private lateinit var editText: EditText
     private lateinit var pictureXViewModel: PictureXViewModel
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

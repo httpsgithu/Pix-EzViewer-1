@@ -37,10 +37,11 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import com.bumptech.glide.Glide
 import com.perol.asdpl.pixivez.R
 import com.perol.asdpl.pixivez.databinding.ActivitySaucenaoBinding
+import com.perol.asdpl.pixivez.objects.InteractionUtil.add
 import com.perol.asdpl.pixivez.objects.Toasty
-import com.perol.asdpl.pixivez.services.GlideApp
 import com.perol.asdpl.pixivez.services.PxEZApp
 import com.perol.asdpl.pixivez.services.SaucenaoService
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -191,7 +192,7 @@ class SaucenaoActivity : RinkActivity() {
                                 },
                                 {
                                 }
-                            )
+                            ).add()
                     }
                 }
             }
@@ -216,7 +217,7 @@ class SaucenaoActivity : RinkActivity() {
                 ).show()
                 tryToParseHtml(it.string())
             }, { Toasty.error(this, getString(R.string.saucenao_upload_error) + it.message).show() }, {
-            })
+            }).add()
     }
 
     private fun tryToParseHtml(string: String) {
@@ -248,7 +249,7 @@ class SaucenaoActivity : RinkActivity() {
             startActivity(intent2)
         }
         else {
-            GlideApp.with(this).load(
+            Glide.with(this).load(
                 ContextCompat.getDrawable(
                     this,
                     R.drawable.buzhisuocuo
